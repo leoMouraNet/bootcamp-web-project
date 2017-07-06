@@ -16,6 +16,8 @@ import {
 } from "material-ui/Toolbar";
 import RaisedButton from "material-ui/RaisedButton";
 import TextField from "material-ui/TextField";
+import API from 'utils/api';
+import EnterModal from 'components/enter_modal';
 
 const styles = {
   container: {
@@ -28,9 +30,32 @@ const styles = {
 };
 
 class MyApp extends Component {
+  constructor() {
+    super();
+    this.state = {
+      open: true,
+      username: "",
+      messages: []
+    }
+  }
+  handleClose(username) {
+    console.log(username);
+    this.setState({open:false, username: username})
+  }
+  componentWillMount() {
+     let api = new API();
+     api.login(resp => {
+       console.log(resp);
+       api.getMessages(resp => {
+         this.setState({messages:resp});
+        console.log(this.state.messages);
+       });
+     });
+  }
   render() {
     return (
       <div style={styles.container}>
+        <EnterModal open={this.state.open} handleClose={this.handleClose.bind(this)} />
         <List>
           <Subheader>Channels</Subheader>
           <ListItem primaryText="#general" />

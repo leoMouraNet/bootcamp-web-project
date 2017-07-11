@@ -35,22 +35,32 @@ class MyApp extends Component {
     this.state = {
       open: true,
       username: "",
-      messages: []
+      messages: [],
+      msg:""
     }
+    this.api = null;
   }
   handleClose(username) {
     console.log(username);
     this.setState({open:false, username: username})
   }
   componentWillMount() {
-     let api = new API();
-     api.login(resp => {
-       console.log(resp);
-       api.getMessages(resp => {
-         this.setState({messages:resp});
-        console.log(this.state.messages);
-       });
-     });
+     this.api = new API();
+     this.api.login(resp => {
+        this.loadMessage() 
+    });
+  }
+  loadMessage() {
+    this.api.getMessages(resp => {
+      this.setState({messages:Object.values(resp)})
+    })
+  }
+  handleChange(event) {
+    console.log(event.target.value);
+    this.setState({msg:event.target.value});
+  }
+  handleSubmit(event) {
+    this.api.addMessage(this.state.username,this.state.msg, cb=> {this.loadMessage()});
   }
   render() {
     return (
@@ -61,24 +71,24 @@ class MyApp extends Component {
           <ListItem primaryText="#general" />
         </List>
         <List style={styles.messages}>
-          <ListItem
-            primaryText="@username"
-            secondaryText={"this is my message"}
-          />
-          <Divider />
-          <ListItem
-            primaryText="@username"
-            secondaryText={"this is my message"}
-          />
-          <Divider />
+          {this.state.messages.map((msg, idx) => {
+            return (
+              <div key={idx}>
+                <ListItem
+                  primaryText={msg.username}
+                  secondaryText={msg.text}
+                />
+                <Divider />
+              </div>
+            )
+          })}
           <Toolbar>
-            <TextField hintText="Enter your message" fullWidth={true} />
+            <TextField hintText="Enter your message"  fullWidth={true} value={this.state.msg} onChange={this.handleChange.bind(this)} />
             <ToolbarGroup lastChild>
-              <RaisedButton label="Send" primary={true} />
+              <RaisedButton label="Send" primary={true} onTouchTap={this.handleSubmit.bind(this)} />
             </ToolbarGroup>
           </Toolbar>
         </List>
-
       </div>
     );
   }

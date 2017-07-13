@@ -60,7 +60,10 @@ class MyApp extends Component {
     this.setState({msg:event.target.value});
   }
   handleSubmit(event) {
-    this.api.addMessage(this.state.username,this.state.msg, cb=> {this.loadMessage()});
+    this.api.addMessage(this.state.username,this.state.msg, cb=> {
+      this.loadMessage()
+      this.setState({})
+  });
   }
   render() {
     return (
